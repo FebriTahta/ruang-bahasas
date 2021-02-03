@@ -9,6 +9,7 @@ use Auth;
 use App\User;
 use App\Mapel;
 use App\Kelas;
+use App\Uraian;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
@@ -27,7 +28,7 @@ class SoalController extends Controller
     public function creates($id){
         $data = Kuis::find($id);
         $data_id = $data->id;//id kuis
-        $data_slug = $data->slug;//slug kuis        
+        $data_slug = $data->slug;//slug kuis
         $datas= $data->kursus->first();
         return view('admin.daftarSoal.create', compact('data_slug','data','data_id','datas'));
     }
@@ -159,5 +160,59 @@ class SoalController extends Controller
         );
         
         return redirect('/detail-latihan-soal/'.$data_5)->with($notif);
+    }
+
+    public function uraianPost(Request $req)
+    {
+        $slug = $req->judul.$req->user_id;
+        $data   = Uraian::updateOrCreate([
+            'user_id'=> $req->user_id,
+            'kelas_id'=> $req->kelas_id,
+            'mapel_id'=>$req->mapel_id,
+            'judul'=>$req->judul,
+            'soal'=>$req->soal,
+            'start'=>$req->start,
+            'end'=>$req->end,
+            'status'=>$req->status,
+            'slug'=>str::slug($slug)
+        ]);
+        if($req -> hasFile('soal'))
+            {
+                $req->file('soal')->move('soal/',$req->file('soal')->getClientOriginalName());
+                $addpertanyaan->soal = $req->file('soal')->getClientOriginalName();
+                $addpertanyaan->save();
+            }
+        $notif = array(
+                'pesan-sukses' => 'soal berhasil ditambahkan'
+            );
+        return redirect()->back()->with($notif);
+    }
+
+    public function uraianU(Request $req)
+    {
+        $slug = $req->judul.$req->user_id;
+        $idd   = $req->id;
+        $uraian              = Uraian::updateOrCreate(['id' => $idd],
+        [
+            'user_id'=> $req->user_id,
+            'kelas_id'=> $req->kelas_id,
+            'mapel_id'=>$req->mapel_id,
+            'judul'=>$req->judul,
+            'soal'=>$req->soal,
+            'start'=>$req->start,
+            'end'=>$req->end,
+            'status'=>$req->status,
+            'slug'=>str::slug($slug)
+        ]);
+        if($req -> hasFile('soal'))
+            {
+                $req->file('soal')->move('soal/',$req->file('soal')->getClientOriginalName());
+                $addpertanyaan->soal = $req->file('soal')->getClientOriginalName();
+                $addpertanyaan->save();
+            }
+        $notif = array(
+                'pesan-sukses' => 'soal berhasil ditambahkan'
+            );
+        return redirect()->back()->with($notif);
     }
 }

@@ -3,6 +3,7 @@
 @section('head')
 <link rel="stylesheet" href="{{ asset('assets/js/plugins/datatables/dataTables.bootstrap4.css') }}">
 <link rel="stylesheet" id="css-main" href="{{ asset('assets/css/codebase.min.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/js/plugins/summernote/summernote-bs4.css') }}">
 @endsection
 
 @section('content')
@@ -73,6 +74,7 @@
         <div class="w3l-homeblock2 w3l-homeblock6 py-5" id="daftarakuis">
             <div class="container-fluid px-sm-5 py-lg-5 py-md-4">
                 <div class="bg-clr-white" style="padding: 5%">
+                    <h3>PILIHAN GANDA</h3>
                     <button class="btn btn-primary fa fa-plus hover-box" style="margin-bottom: 10px" data-toggle="modal" data-target="#modal-fromleft"> Tambah &nbsp;</button>
                     <table class="table table-stripped table-vcenter" id="mykuis">
                         <thead class="text-uppercase">
@@ -110,6 +112,50 @@
         </div>
     </div>
 </div>
+<div class="content">
+    <div class="w3l-homeblock2 w3l-homeblock6 py-5" id="daftarakuis">
+        <div class="container-fluid px-sm-5 py-lg-5 py-md-4">
+            <div class="bg-clr-white" style="padding: 5%">
+                <h3>URAIAN SOAl </h3>
+                <button class="btn btn-primary fa fa-plus hover-box" style="margin-bottom: 10px" data-toggle="modal" data-target="#modal-large"> Tambah &nbsp;</button>
+                <table class="table table-stripped table-vcenter" id="uraian">
+                    <thead class="text-uppercase">
+                        <tr>
+                            <th class="d-none d-sm-table-cell" style="width: 5%">#</th>
+                            <th>JUDUL</th>
+                            <th class="d-none d-sm-table-cell">KATEGORI</th>
+                            <th>STATUS</th>
+                            <th class="d-none d-sm-table-cell">JADWAL (JAM)</th>
+                            <th class="text-right">opsi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($uraian as $key=>$item)
+                        <tr>
+                            <td class="d-none d-sm-table-cell" style="width: 5%">{{ $key+1 }}</td>
+                            <td><a href="/uraian-detail/{{ $item->slug }}/{{ $item->mapel->id }}/{{ $item->kelas->id }}">{{ $item->judul }}</a></td>
+                            <td class="d-none d-sm-table-cell">{{ $item->mapel->mapel_name }} {{ $item->kelas->kelas_name }}</td>
+                            <td >
+                                @if ($item->status==1)
+                                    <small class="badge badge-info">SIAP</small>
+                                @else
+                                    <small class="badge badge-danger">BELUM SIAP</small>
+                                @endif
+                            </td>
+                            <td class="d-none d-sm-table-cell">jam ({{ $item->start }}) sampai ({{ $item->end }})</td>
+                            
+                            <td class="text-right">
+                                <a href="#" class="btn btn-sm btn-danger text-white hover-box" type="button" data-toggle="modal" data-target="#modal-fromleft-hapus" data-id="{{ $item->id }}"><i class="fa fa-trash"></i> 
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>                
+        </div>
+    </div>
+</div>
+
 
 
 <!--modal add kuis-->
@@ -163,6 +209,67 @@
     </div>
 </div>
 <!--end modal add kuis-->
+
+<!-- Large uraian -->
+<div class="modal fade" id="modal-large" tabindex="-1" role="dialog" aria-labelledby="modal-large" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="block block-themed block-transparent mb-0">
+                <div class="block-header bg-primary-light">
+                    <h3 class="block-title">UPLOAD URAIAN SOAL</h3>
+                    <div class="block-options">
+                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                            <i class="si si-close"></i>
+                        </button>
+                    </div>
+                </div>
+                <form action="{{ route('uraianPost') }}" method="POST" enctype="multipart/form-data">@csrf
+                    <div class="block-content">
+                        <div class="form-group">
+                            <input type="hidden" class="form-control" id="user_id" name="user_id"
+                                    value="{{ $user }}" required>
+                            <input type="hidden" class="form-control" id="kursus_id" name="kursus_id"
+                                    value="" required>
+                            <input type="hidden" class="form-control" id="kelas_id" name="kelas_id" value="{{ $kursus->kelas->id }}">
+                            <input type="hidden" class="form-control" id="mapel_id" name="mapel_id" value="{{ $kursus->mapel->id }}">
+                            <label for="">JUDUL</label>
+                            <input type="text" class="form-control" name="judul" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="">URAIAN SOAL</label>
+                            <textarea class="js-summernote form-control" name="soal" id="" cols="30" rows="10" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-6 col-sm-6">
+                                    <label for="">WAKTU MULAI</label>
+                                    <input type="time" name="start" min="1" max="24" class="form-control" placeholder="jam 1-24" required>
+                                </div>
+                                <div class="col-6 col-sm-6">
+                                    <label for="">WAKTU SELESAI</label>
+                                    <input type="time" name="end" min="1" max="24" class="form-control" placeholder="Jam 1-24" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="">STATUS</label>
+                            <select name="status" id="" class="form-control">
+                                <option value="1"> SIAP</option>
+                                <option value="0"> BELUM-SIAP</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="block-content">
+                        <div class="form-group">
+                            <button class="submit fa fa-check btn btn-primary" > UPLOAD</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END uraian -->
 
 <!--modal edit kuis-->
 <div class="modal fade" id="modal-fromleft-edit" tabindex="-1" role="dialog" aria-labelledby="modal-fromleft" aria-hidden="true">
@@ -302,6 +409,44 @@
 </div>
 <!--end modal serahkan KUIS-->
 
+<!--modal hapus kuis-->
+<div class="modal fade" id="modal-fromleft-hapus" tabindex="-1" role="dialog" aria-labelledby="modal-fromleft" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-fromleft" role="document">                            
+        <div class="modal-content">
+            <form id="form-tambah-quiz" name="form-tambah-quiz" class="form-horizontal" action="{{ route('hapusUraian') }}" method="POST" enctype="multipart/form-data">@csrf                    
+                <div class="block block-themed block-transparent mb-0">
+                    <div class="block-header bg-danger">
+                        <h3 class="block-title">HAPUS</h3>
+                        <div class="block-options">
+                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                <i class="si si-close"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="block-content">                            
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input type="hidden" id="id" name="id">                                                             
+                            </div>                            
+                            <div class="form-group text-center text-danger border-bottom">
+                                <p>KUIS AKAN DIHAPUS PERMANEN DARI SISTEM!</p>
+                            </div>
+                            <div class="form-group text-center">
+                                <p>Yakin akan menghapus kuis ini ?</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-outline-danger fa fa-trash" type="submit"> HAPUS</button>
+                        </div>
+                    </div>                                                               
+                </div>                        
+            </form>                   
+        </div>            
+    </div>
+</div>
+<!--end modal hapus kuis-->
+
 @endsection
 
 @section('script')
@@ -309,6 +454,10 @@
     var table3;
     $(document).ready(function(){    
         table3= $('#mykuis').DataTable({});        
+    });
+    var table;
+    $(document).ready(function(){    
+        table= $('#uraian').DataTable({});        
     });
 </script>
 <script>
@@ -336,6 +485,15 @@
         var id = button.data('id')        
         var modal = $(this)
         modal.find('.block-title').text('HAPUS KUIS');        
+        modal.find('.block-content #id').val(id);        
+    })
+</script>
+<script>
+    $('#modal-fromleft-hapus').on('show.bs.modal', function(event){
+        var button = $(event.relatedTarget)        
+        var id = button.data('id')        
+        var modal = $(this)
+        modal.find('.block-title').text('HAPUS SOAL URAIAN');        
         modal.find('.block-content #id').val(id);        
     })
 </script>
@@ -381,7 +539,7 @@
         curr_hour       = checkTime(curr_hour);
         curr_minute     = checkTime(curr_minute);
         curr_second     = checkTime(curr_second);
-        document.getElementById("jam").innerHTML=curr_hour+ ":" + curr_minute + ":" + curr_second ;                        
+        document.getElementById("jam").innerHTML=curr_hour+ ":" + curr_minute + ":" + curr_second ;
     }
     function checkTime(i){            
         if(i == 60){

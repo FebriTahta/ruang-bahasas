@@ -52,7 +52,7 @@
                     <a class="topics-list hover-box" onclick="videoscroll()">
                         <div class="list1">
                             <span class="fa fa-play"></span>
-                            <h4><u>{{ $instruktur->video->count() }}</u> Video Kursus</h4>
+                            <h4><u>{{ $instruktur->video->count() }}</u> Materi</h4>
                         </div>
                     </a>
                     <a class="topics-list mt-3 hover-box" onclick="artikelscroll()">
@@ -71,7 +71,7 @@
                     <a  class="topics-list mt-3 hover-box">
                         <div class="list1">
                             <span class="fa fa-pie-chart"></span>
-                            <h4><u>{{ $instruktur->kursus->count() }}</u> Kursus</h4>
+                            <h4><u>{{ $instruktur->kursus->count() }}</u> MAPEL & KELAS</h4>
                         </div>
                     </a>
                 </div>                            
@@ -83,8 +83,8 @@
     <div class="container py-lg-5 py-md-4">
         <!-- block -->
         <div class="left-right">
-            <h3 class="section-title-left mb-sm-4 mb-2 text-uppercase"> KURSUS YANG DIMILIKI {{ $instruktur->name }}</h3>
-            <a href="{{ route('allkursus') }}" class="more btn btn-small mb-sm-0 mb-4">KURSUS LAIN</a>
+            <h3 class="section-title-left mb-sm-4 mb-2 text-uppercase"> MAPEL & KELAS YANG DIMILIKI {{ $instruktur->name }}</h3>
+            <a href="{{ route('allkursus') }}" class="more btn btn-small mb-sm-0 mb-4">MAPEL & KELAS LAIN</a>
         </div>
         <div class="row">
             @foreach ($instruktur->kursus as $item)

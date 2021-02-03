@@ -98,6 +98,7 @@ Route::group(['middleware'=>['auth','checkrole:admin,instruktur']], function(){
     Route::get('/my-kuis','KuisController@mykuis')->name('my-kuis');
     Route::post('/addKuis','KuisController@store')->name('addKuis');
     Route::post('/salinKuis','KuisController@salin')->name('salinKuis');
+    Route::post('/salinUraian','KuisController@salinuraian')->name('salinUraian');
     Route::post('/removeKuis','KuisController@remove')->name('removeKuis');
     Route::post('/hapusKuisPermanen', 'KuisController@hapusKuisPermanen')->name('hapusKuisPermanen');
     //book
@@ -160,6 +161,15 @@ Route::group(['middleware'=>['auth','checkrole:siswa,pengunjung,instruktur,admin
     Route::get('/akun','AkunController@index')->name('akun');
     Route::post('/ajukan-reset', 'MyCourseController@ajukanreset')->name('ajukan-reset');
     route::get('/landing/land', 'ProfileController@landing')->name('landing');
-    //formresetkuis
+    //uraian
+    Route::post('/uraian-post','SoalController@uraianPost')->name('uraianPost');
+    Route::post('/uraian-update','SoalController@uraianU')->name('uraianU');
+    Route::post('/uraian-hapus','KuisController@hapusUraianPermanen')->name('hapusUraian');
+    Route::get('/uraian-detail/{slug}/{mapel}/{kelas}','KuisController@uraianDetail')->name('uraianDetail');
+    Route::post('/uraian-jawab','MyCourseController@uraianjawab')->name('uraianJawab');
+    Route::post('/uraian-keluar','KuisController@uraiankeluar')->name('uraiankeluar');
+    //formresetkuis&nilaiuraian
     route::get('/form-reset-kuis', 'MyCourseController@formreset')->name('formreset');
+    route::get('/form-nilai-uraian-soal/{profile}/{uraian}','MyCourseController@formnilaiuraian')->name('formnilaiuraian');
+    route::post('/berikan-nilai','MyCourseController@berinilai')->name('berinilai');
 });

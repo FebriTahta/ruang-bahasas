@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 @endsection
 @section('content')
-
+<input type="hidden" value="{{ date_default_timezone_set("Asia/Jakarta") }}">
 <div class="w3l-homeblock2 w3l-homeblock6 py-5">
     <div class="container-fluid px-sm-5 py-lg-5 py-md-4">
         <!-- block -->
@@ -174,23 +174,94 @@
             <!--latihan soal-->
             <div class="" data-category="latihansoal" style="display: none">
                 @if (auth()->user()->role=='instruktur')
-                <h5 class="mb-4" style="margin-top: 20px"> <span class="fa fa-plus label-blue btn hover-box" data-toggle="modal" data-target="#addkuiss"></span></h5>    
+                <h5 class="mb-4" style="margin-top: 20px"> <span class="fa fa-plus label-blue btn hover-box" data-toggle="modal" data-target="#addkuiss"> PILIHAN GANDA</span> <span class="fa fa-plus label-blue btn hover-box" data-toggle="modal" data-target="#addkuisss"> URAIAN</span></h5>    
                 @else
                     <h5 class="mb-4" style="margin-top: 20px"> <span class="label-blue text-uppercase"> latihan soal</span></h5>
                 @endif
                 <hr>
-                <div class="col-12">
-                    @if (count($data_kursus->kuis)==null)
-                        <div class="col-12 col-xl-12 text-center" style="max-height: 100px">
-                            <p class="text-danger">Belum Ada Latihan SOal Yang Tersedia</p>
-                        </div>
-                    @else
+                <div class="row">
+                    <div class="col-12 col-xl-6">
+                        @if (count($data_kursus->kuis)==null)
+                            <div class="col-12 col-xl-12 text-center" style="max-height: 100px">
+                                <p class="text-danger">Belum Ada Latihan Soal Pilihan Ganda Yang Tersedia</p>
+                            </div>
+                        @else
+                            <div class="bg-clr-white">
+                                <table class="table table-borderless table-vcenter">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 5%">#</th>
+                                            <th style="width: 42%">Kuis Pilihan Ganda</th>
+                                            @if (auth()->user()->role=='siswa')
+                                                <th class="text-center float-right">Status </th>
+                                            @endif                                
+                                            {{-- <th class="float-right"></th> --}}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($data_kursus->kuis as $key=>$item)
+                                        <tr>
+                                            <td style="width: 5%">{{ $key+1 }}</td>
+                                            <td style="width: 42%">
+                                                @if (auth()->user()->role=='instruktur')
+                                                    <a href="/detail-latihan-soal/{{ $item->slug }}/{{ $data_kursus->slug }}">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a>
+                                                @elseif(auth()->user()->role=='admin')
+                                                    <a href="/detail-latihan-soal/{{ $item->slug }}/{{ $data_kursus->slug }}">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a>
+                                                @else
+                                                    @if ($item->pertanyaan->count()!==0)
+                                                        <a href="/kuis-form-latihan-soal/{{ $item->slug }}/{{ $data_kursus->slug }}" class="text-primary">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a>
+                                                    @else
+                                                        <a href="#{{ $item->kuis_name }}" class="text-danger">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a>
+                                                    @endif
+                                                @endif                                    
+                                            </td>
+                                            @if (auth()->user()->role=='siswa')
+                                                <td class="text-center " style="width: 15%">
+                                                    <?php $sudah_dikerjakan = App\Result::where('profile_id', auth()->user()->id)->where('kuis_id', $item->id)->first()?>
+                                                    @if ($sudah_dikerjakan==null)
+                                                        <p class="badge badge-danger text-uppercase float-right">belum</p>&nbsp;&nbsp;&nbsp;
+                                                    @else
+                                                        <p class="badge badge-success text-uppercase float-right">selesai</p>&nbsp;&nbsp;&nbsp;
+                                                    @endif
+                                                </td>
+                                            @endif
+            
+                                            @if (auth()->user()->role=='instruktur')
+                                                @if (auth()->user()->id==$data_kursus->user->id)
+                                                    @if (auth()->user()->id !== $item->user_id)
+                                                        <td class="float-right">
+                                                            <a href="#" data-id="{{ $item->id }}" data-kursus_id="{{ $data_kursus->id }}" data-toggle="modal" data-target="#hapuskuis" class="fa fa-trash text-danger"> hapus</a>
+                                                        </td>    
+                                                    @else
+                                                        <td class="float-right">
+                                                            {{-- <a href="/buat-soal/{{ $item->id }}/{{ $item->slug }}"><i class="fa fa-plus"></i> soal</a> --}}
+                                                            <a href="#" data-id="{{ $item->id }}" data-kursus_id="{{ $data_kursus->id }}" data-toggle="modal" data-target="#hapuskuis" class="fa fa-trash text-danger"> hapus</a>
+                                                        </td>
+                                                    @endif
+                                                @endif                                 
+                                            @else                                
+                                            
+                                            @endif
+                                        </tr>
+                                        @endforeach                    
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="col-12 col-xl-6">
+                        @if (count($data_kursus->uraian)==null)
+                            <div class="col-12 col-xl-12 text-center" style="max-height: 100px">
+                                <p class="text-danger">Belum Ada Latihan Soal Uraian Yang Tersedia</p>
+                            </div>
+                        @else
                         <div class="bg-clr-white">
                             <table class="table table-borderless table-vcenter">
                                 <thead>
                                     <tr>
                                         <th style="width: 5%">#</th>
-                                        <th style="width: 42%">Kuis</th>
+                                        <th>Jadwal</th>
+                                        <th>Kuis Uraian</th>
                                         @if (auth()->user()->role=='siswa')
                                             <th class="text-center float-right">Status </th>
                                         @endif                                
@@ -198,26 +269,24 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($data_kursus->kuis as $key=>$item)
+                                    @foreach ($data_kursus->uraian as $key=>$item)
                                     <tr>
                                         <td style="width: 5%">{{ $key+1 }}</td>
-                                        <td style="width: 42%">
+                                        <td>{{ $item->start }}-{{ $item->end }}</td>
+                                        <td style="">
+                                        
                                             @if (auth()->user()->role=='instruktur')
-                                                <a href="/detail-latihan-soal/{{ $item->slug }}/{{ $data_kursus->slug }}">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a>
+                                                <a href="/uraian-detail/{{ $item->slug }}/{{ $item->mapel->id }}/{{ $item->kelas->id }}"> {{ $item->judul }}</a>
                                             @elseif(auth()->user()->role=='admin')
-                                                <a href="/detail-latihan-soal/{{ $item->slug }}/{{ $data_kursus->slug }}">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a>
+                                                <a href="/uraian-detail/{{ $item->slug }}/{{ $item->mapel->id }}/{{ $item->kelas->id }}"> {{ $item->judul }}</a>
                                             @else
-                                                @if ($item->pertanyaan->count()!==0)
-                                                    <a href="/kuis-form-latihan-soal/{{ $item->slug }}/{{ $data_kursus->slug }}" class="text-primary">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a>
-                                                @else
-                                                    <a href="#{{ $item->kuis_name }}" class="text-danger">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a>
-                                                @endif
+                                                <a @if ($item->start == date('H:i') || $item->end < date('H:i')) href="#bukanwaktunya" class="text-danger" @else href="/uraian-detail/{{ $item->slug }}/{{ $item->mapel->id }}/{{ $item->kelas->id }}" class="text-primary" @endif >{{ $item->judul }}</a>
                                             @endif                                    
                                         </td>
                                         @if (auth()->user()->role=='siswa')
                                             <td class="text-center " style="width: 15%">
-                                                <?php $sudah_dikerjakan = App\Result::where('profile_id', auth()->user()->id)->where('kuis_id', $item->id)->first()?>
-                                                @if ($sudah_dikerjakan==null)
+                                                <?php $jawab = App\Jawaburai::where('profile_id', auth()->user()->profile->id)->where('uraian_id',$item->id)->first()?>
+                                                @if ($jawab==null)
                                                     <p class="badge badge-danger text-uppercase float-right">belum</p>&nbsp;&nbsp;&nbsp;
                                                 @else
                                                     <p class="badge badge-success text-uppercase float-right">selesai</p>&nbsp;&nbsp;&nbsp;
@@ -229,12 +298,12 @@
                                             @if (auth()->user()->id==$data_kursus->user->id)
                                                 @if (auth()->user()->id !== $item->user_id)
                                                     <td class="float-right">
-                                                        <a href="#" data-id="{{ $item->id }}" data-kursus_id="{{ $data_kursus->id }}" data-toggle="modal" data-target="#hapuskuis" class="fa fa-trash text-danger"> hapus</a>
+                                                        <a href="#" data-id="{{ $item->id }}" data-kursus_id="{{ $data_kursus->id }}" data-toggle="modal" data-target="#keluarkankuis" class="fa fa-trash text-danger"> hapus</a>
                                                     </td>    
                                                 @else
                                                     <td class="float-right">
-                                                        <a href="/buat-soal/{{ $item->id }}/{{ $item->slug }}"><i class="fa fa-plus"></i> soal</a>
-                                                        <a href="#" data-id="{{ $item->id }}" data-kursus_id="{{ $data_kursus->id }}" data-toggle="modal" data-target="#hapuskuis" class="fa fa-trash text-danger"> hapus</a>
+                                                        {{-- <a href="/buat-soal/{{ $item->id }}/{{ $item->slug }}"><i class="fa fa-plus"></i> soal</a> --}}
+                                                        <a href="#" data-id="{{ $item->id }}" data-kursus_id="{{ $data_kursus->id }}" data-toggle="modal" data-target="#keluarkankuis" class="fa fa-trash text-danger"> hapus</a>
                                                     </td>
                                                 @endif
                                             @endif                                 
@@ -246,7 +315,8 @@
                                 </tbody>
                             </table>
                         </div>
-                    @endif                        
+                        @endif
+                    </div>
                 </div>
             </div>
             <!--artikel-->
@@ -475,11 +545,59 @@
                                 @foreach ($filter_kuis as $key=> $item)
                                 <tr>
                                     <td style="width: 5%">{{ $key+1 }}</td>
-                                    <td><a href="#" class="text-primary view-video">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a></td>
+                                    <td><a href="#" class="text-primary">({{ $item->pertanyaan->count() }} soal) {{ $item->kuis_name }}</a></td>
                                     <td>{{ $item->user->name }}</td>
                                     <td>
                                         <label class="css-control css-control-info css-checkbox">
                                             <input type="checkbox" class="css-control-input" name="kuis_id[]" value="{{ $item->id }}">
+                                            <span class="css-control-indicator"></span>
+                                        </label> 
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <button class="btn btn-sm btn-primary" type="submit">sumbit</button>
+                    </form>
+                </div>
+            </div>                
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addkuisss" tabindex="-1" role="dialog" aria-labelledby="modal-large" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="block block-themed block-transparent mb-0">
+                <div class="block-header bg-info">
+                    <h3 class="block-title">DAFTAR URAIAN KUIS</h3>
+                    <div class="block-options">
+                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                            <i class="si si-close"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('salinUraian') }}" method="post"> @csrf
+                        <input type="hidden" name="kursus_id" value="{{ $data_kursus->id }}">
+                        <table class="table table-striped" id="addkuis">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%">#</th>
+                                    <th>kuis</th>
+                                    <th>owner</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($filter_uraian as $key=> $item)
+                                <tr>
+                                    <td style="width: 5%">{{ $key+1 }}</td>
+                                    <td><a href="/uraian-detail/{{ $item->slug }}/{{ $item->mapel->id }}/{{ $item->kelas->id }}" class="text-primary">{{ $item->judul }}</a></td>
+                                    <td>{{ $item->user->name }}</td>
+                                    <td>
+                                        <label class="css-control css-control-info css-checkbox">
+                                            <input type="checkbox" class="css-control-input" name="uraian_id[]" value="{{ $item->id }}">
                                             <span class="css-control-indicator"></span>
                                         </label> 
                                     </td>
@@ -501,6 +619,38 @@
     <div class="modal-dialog modal-dialog-fromleft" role="document">                            
         <div class="modal-content">
             <form id="form-tambah-quiz" name="form-tambah-quiz" class="form-horizontal" action="{{ route('removeKuis') }}" method="POST" enctype="multipart/form-data">@csrf                    
+                <div class="block block-themed block-transparent mb-0">
+                    <div class="block-header bg-danger">
+                        <h3 class="block-title text-uppercase">remove kuis</h3>
+                        <div class="block-options">
+                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                <i class="si si-close"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="block-content">                            
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <p class="text-uppercase">kuis tersebut akan dihapus dari kursus anda</p>
+                                <input type="hidden" id="kursus_id" name="kursus_id">
+                                <input type="hidden" id="id" name="id">
+                            </div>                                                      
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <button class="btn btn-danger" type="submit">remove</button>
+                        </div>
+                    </div>                                                               
+                </div>                        
+            </form>                   
+        </div>            
+    </div>
+</div>
+
+<div class="modal fade" id="keluarkankuis" tabindex="-1" role="dialog" aria-labelledby="modal-fromleft" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-fromleft" role="document">                            
+        <div class="modal-content">
+            <form id="form-tambah-quiz" name="form-tambah-quiz" class="form-horizontal" action="{{ route('uraiankeluar') }}" method="POST" enctype="multipart/form-data">@csrf                    
                 <div class="block block-themed block-transparent mb-0">
                     <div class="block-header bg-danger">
                         <h3 class="block-title text-uppercase">remove kuis</h3>
@@ -677,6 +827,16 @@
 </script>
 <script>
     $('#hapuskuis').on('show.bs.modal', function(event){
+        var button = $(event.relatedTarget)
+        var id = button.data('id')
+        var kursus_id = button.data('kursus_id')
+        var modal = $(this)        
+        modal.find('.block-content #id').val(id);
+        modal.find('.block-content #kursus_id').val(kursus_id);
+    })
+</script>
+<script>
+    $('#keluarkankuis').on('show.bs.modal', function(event){
         var button = $(event.relatedTarget)
         var id = button.data('id')
         var kursus_id = button.data('kursus_id')

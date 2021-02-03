@@ -6,7 +6,7 @@
         <div class="row footer-top-28">
           <div class="col-lg-4 footer-list-28 copy-right mb-lg-0 mb-sm-5 mt-sm-0 mt-4">
             <a class="navbar-brand mb-3" href="#">
-              <span class="fa fa-newspaper-o"></span> Course Academy</a>            
+              <span class="fa fa-newspaper-o"></span> Ruang Bahasa</a>            
             <p class="mt-2">Design by <small><a href="https://w3layouts.com/">W3Layouts</a></small> </p>
           </div>
         </div>

@@ -7,6 +7,7 @@ use Auth;
 use App\User;
 use App\Kelas;
 use App\Mapel;
+use App\Uraian;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
@@ -21,8 +22,9 @@ class KuisController extends Controller
         $mapels = Mapel::all();
         $kelass = Kelas::all();
         $kursus = Kursus::where('slug',$slug)->first();
+        $uraian = Uraian::all();
         $instruktur = User::where('role', 'instruktur')->get();
-        return view('client/konten/kuis', compact('kursus','kuis','user','users','kelass','mapels','kuiss','instruktur'));
+        return view('client/konten/kuis', compact('uraian','kursus','kuis','user','users','kelass','mapels','kuiss','instruktur'));
     }
 
     public function store(Request $request)
@@ -79,6 +81,24 @@ class KuisController extends Controller
         return redirect()->back()->with($notif);
     }
 
+    public function salinuraian(Request $request)
+    {
+        $id         = $request->kursus_id;
+        $kursus     = Kursus::find($id);
+
+        foreach ($request->uraian_id as $key => $value) {
+            # code...
+            $data   = array (
+                'uraian_id'=>$request->uraian_id[$key]
+            );
+            $kursus->uraian()->syncWithoutDetaching($data);
+        }
+        $notif = array(
+            'pesan-sukses' => 'kuis baru berhasil disalin',                
+        );
+        return redirect()->back()->with($notif);
+    }
+
     public function remove(Request $request)
     {
         $kuis_id    = $request->id;
@@ -88,11 +108,27 @@ class KuisController extends Controller
 
         $kursus->kuis()->detach($kuis);        
         $notif = array(
-            'pesan-peringatan' => 'kuis tersebut berhasil dihapus',                
+            'pesan-peringatan' => 'kuis pilihan ganda tersebut berhasil dihapus',                
             );
                         
         return redirect()->back()->with($notif);   
     }
+
+    public function uraiankeluar(Request $request)
+    {
+        $uraian_id    = $request->id;
+        $kursus_id  = $request->kursus_id;
+        $kursus     = Kursus::find($kursus_id);
+        $uraian       = Uraian::find($uraian_id);
+
+        $kursus->uraian()->detach($uraian);        
+        $notif = array(
+            'pesan-peringatan' => 'kuis uraian tersebut berhasil dihapus',                
+            );
+                        
+        return redirect()->back()->with($notif);   
+    }
+    
 
     public function mykuis()
     {
@@ -117,4 +153,26 @@ class KuisController extends Controller
         $kuis->delete();    
         return redirect()->back()->with($notif);   
     }
+
+    public function hapusUraianPermanen(Request $request)
+    {
+        $id         = $request->id;
+        $kuis       = Uraian::find($id);
+        $kuis_name  = $kuis->judul;
+
+        $notif      = array(
+                    'pesan-bahaya' => 'kuis "'.$kuis_name.'" berhasil dihapus',                
+                    );
+        $kuis->delete();    
+        return redirect()->back()->with($notif);
+    }
+
+    public function uraianDetail($slug,$mapel,$kelas)
+    {
+        $mapel  = Mapel::find($mapel);
+        $kelas  = Kelas::find($kelas);
+        $uraian = Uraian::where('slug', $slug)->first();
+        return view('client.mykuis.udetail', compact('uraian','mapel','kelas'));
+    }
+
 }

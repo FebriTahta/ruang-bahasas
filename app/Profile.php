@@ -26,4 +26,14 @@ class Profile extends Model
     {
         return $this->hasMany(reset::class);
     }
+
+    public function jawaburai()
+    {
+        return $this->hasMany(Jawaburai::class);
+    }
+
+    public function nilai()
+    {
+        return $this->hasMany(Nilai::class);
+    }
 }

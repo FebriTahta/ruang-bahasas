@@ -15,10 +15,15 @@ use App\Artikel;
 use App\kursus_video;
 use App\kuis_kursus;
 use App\artikel_kursus;
+use App\kursus_uraian;
+use App\Jawaburai;
 use Auth;
+use App\Nilai;
 use App\Mail\PengajuanResetKuis;
 use App\Mail\AccResetKuis;
 use App\Mail\AjuanReset;
+use App\Mail\JawabUraian;
+use App\Uraian;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
@@ -30,6 +35,9 @@ class MyCourseController extends Controller
         $data_kursus_id     = $data_kursus->id;
         $mapel_id           = $data_kursus->mapel->id;
         $kelas_id           = $data_kursus->kelas->id;
+        //uraian
+        $uraian_masuk       = kursus_uraian::where('kursus_id', $data_kursus_id)->pluck('uraian_id')->toArray();
+        $filter_uraian      = Uraian::where('kelas_id', $kelas_id)->where('mapel_id', $mapel_id)->where('status',1)->whereNotIn('id', $uraian_masuk)->get();
         //video
         $video_masuk        = kursus_video::where('kursus_id', $data_kursus_id)->pluck('video_id')->toArray();
         $filter_video       = Video::where('kelas_id', $kelas_id)->where('mapel_id', $mapel_id)->whereNotIn('id', $video_masuk)->get();
@@ -39,7 +47,7 @@ class MyCourseController extends Controller
         //artikel
         $artikel_masuk      = artikel_kursus::where('kursus_id', $data_kursus_id)->pluck('artikel_id')->toArray();
         $filter_artikel     = Artikel::where('kelas_id', $kelas_id)->where('mapel_id', $mapel_id)->whereNotIn('id', $artikel_masuk)->get();
-        return view('client.mycourse.index', compact('data_kursus','filter_video','filter_kuis','filter_artikel'));        
+        return view('client.mycourse.index', compact('filter_uraian','data_kursus','filter_video','filter_kuis','filter_artikel'));        
     }
 
     public function kuisform($id)
@@ -246,7 +254,62 @@ class MyCourseController extends Controller
     {
         $id     = Auth::id();
         $resets = Reset::where('user_id',$id)->get();
-        return view('/instruktur.reset', compact('resets'));
+        $uraian = Jawaburai::where('user_id', $id)->get();
+        return view('/instruktur.reset', compact('resets','uraian'));
+    }
+
+    public function formnilaiuraian($profile,$uraian)
+    {
+        $id     = Auth::id();
+        $siswa  = Profile::find($profile);
+        $uraians= Jawaburai::find($uraian);
+        $resets = Reset::where('user_id',$id)->get();
+        $uraianx = Jawaburai::where('user_id', $id)->get();
+        return view('/client.mykuis.nilaiuraian',compact('resets','uraianx','siswa','uraians'));
+    }
+
+    public function berinilai(Request $request){
+        $id = $request->id;
+        Nilai::updateOrCreate(['id' => $id],
+        [
+            'profile_id'=>$request->profile_id,
+            'uraian_id' =>$request->uraian_id,
+            'nilai'     =>$request->nilai
+        ]);
+        $notif          = array('pesan-info' => 'selesai memberikan nilai');
+        return redirect()->back()->with($notif);
+    }
+
+    public function uraianjawab(Request $request)
+    {
+        $instruktur = User::where('id',$request->user_id)->first();
+        $siswa      = Profile::where('id',$request->profile_id)->first();
+        $uraian     = Uraian::where('id', $request->uraian_id)->first();
+
+        $instruktur_mail = $instruktur->email;
+        $instruktur_name = $instruktur->name;
+        $uraian_name     = $uraian->judul;
+        $siswa_siswa     = $siswa->user_id;
+        $beneran_siswa   = User::where('id',$siswa_siswa)->first();
+        $siswa_name      = $beneran_siswa->name;
+
+        $detail         = [
+            'title'     => 'Hai '.$instruktur_name.'',
+            'body'      => ''.$siswa_name.' telah menyelesaiakan tugas uraian soal yang berjudul '.$uraian_name.' mohon segera koreksi tugas dari siswa anda',
+            'link'      => 'course-academy.top'
+        ];
+        //kirim email dulu
+        $when           = Carbon::now()->addSeconds(10);
+        Mail::to($instruktur_mail)->send((new JawabUraian($detail))->delay($when));
+
+        $menjawab = Jawaburai::updateOrCreate([
+            'user_id'=>$request->user_id,
+            'profile_id'=>$request->profile_id,
+            'uraian_id'=>$request->uraian_id,
+            'jawabanku'=>$request->jawabanku
+        ]);
+        $notif          = array('pesan-info' => 'Anda telah menjawab soal dengan baik, tunggu sampai instruktur memeriksa jawaban anda');
+        return redirect()->back()->with($notif);
     }
     
 }

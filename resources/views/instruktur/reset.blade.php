@@ -52,7 +52,8 @@
                                 <div class="pad" style="margin-left: 10%">
                                     <p class="blog-desc text-bold"> Periksa daftar pengajuan reset hasil kuis!</p>
                                     <p class="text-muted">
-                                        ada <u>{{ $resets->count() }} siswa </u> yang mengajukan reset hasil kuis
+                                        ada <u>{{ $resets->count() }} siswa </u> yang mengajukan reset hasil kuis multiple choice dan
+                                        <u> {{ $uraian->count() }} siswa </u> telah menyelesaikan uraian kuis
                                     </p><br><br>
                                     <button class="btn btn-sm btn-primary" onclick="daftarsiswa()">daftar siswa</button>
                                 </div>
@@ -65,14 +66,14 @@
                 <div class="w3l-homeblock2 w3l-homeblock6 py-5" id="daftarakuis">
                     <div class="container-fluid px-sm-5 py-lg-5 py-md-4">
                         <div class="bg-clr-white" style="padding: 5%" id="daftarsiswa">
-                            <a href="#" class="btn btn-primary fa fa-plus hover-box" style="margin-bottom: 10px"> Tambah &nbsp;</a>
+                            <h3>MULTIPLE CHOICE</h3>
                             <table class="table table-stripped table-vcenter" id="reset">
                                 <thead class="text-uppercase">
                                     <tr>
                                         <th class="d-none d-sm-table-cell" style="width: 5%">#</th>
                                         <th>siswa</th>
                                         <th>kuis</th>
-                                        <th class="d-none d-sm-table-cell" style="width: 20%">kursus</th>
+                                        <th class="d-none d-sm-table-cell" style="width: 20%">kategori</th>
                                         <th class="text-right">opsi</th>
                                     </tr>
                                 </thead>
@@ -96,9 +97,47 @@
                         </div>                
                     </div>
                 </div>
+
+                <div class="w3l-homeblock2 w3l-homeblock6 py-5" id="daftarakuis2">
+                    <div class="container-fluid px-sm-5 py-lg-5 py-md-4">
+                        <div class="bg-clr-white" style="padding: 5%" id="daftarsiswa">
+                            <h3>URAIAN SOAL</h3>
+                            <table class="table table-stripped table-vcenter" id="reset2">
+                                <thead class="text-uppercase">
+                                    <tr>
+                                        <th class="d-none d-sm-table-cell" style="width: 5%">#</th>
+                                        <th>siswa</th>
+                                        <th>kuis uraian</th>
+                                        <th>nilai</th>
+                                        <th class="d-none d-sm-table-cell" style="width: 20%">kategori</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                   @foreach ($uraian as $key=> $item)
+                                       <tr>
+                                            <td class="d-none d-sm-table-cell" style="width: 5%">{{ $key+1 }}</td>
+                                            <td><a href="/form-nilai-uraian-soal/{{ $item->profile->id }}/{{ $item->id }}"> {{ $item->profile->user->name }} </a></td>
+                                            <td>{{ $item->uraian->judul }}</td>
+                                            <td>
+                                                <?php $hasil = App\Nilai::where('profile_id', $item->profile->id)->where('uraian_id',$item->uraian->id)->first()?>
+                                                @if ($hasil==null)
+                                                    <label for="" class="badge badge-danger"> belum dinilai </label>
+                                                @else
+                                                    <label for="" class="badge badge-success"> {{ $hasil->nilai }} </label>
+                                                @endif
+                                            </td>
+                                            <td class="d-none d-sm-table-cell" style="width: 20%">{{ $item->uraian->mapel->mapel_name }} {{ $item->uraian->kelas->kelas_name }}</td>
+                                       </tr>
+                                   @endforeach
+                                </tbody>
+                            </table>
+                        </div>                
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="modal fade" id="modal-fromleft-reset" tabindex="-1" role="dialog" aria-labelledby="modal-fromleft" aria-hidden="true">
         <div class="modal-dialog modal-dialog-fromleft" role="document">                            
             <div class="modal-content">
@@ -130,7 +169,7 @@
             </div>
         </div>
     </div>
-    <!--end modal ajukan reset-->
+    
 @endsection
 
 @section('script')
@@ -145,6 +184,10 @@
     var table3;
     $(document).ready(function(){    
         table3= $('#reset').DataTable({});        
+    });
+    var table3;
+    $(document).ready(function(){    
+        table3= $('#reset2').DataTable({});        
     });
 </script>
 
@@ -161,4 +204,5 @@
     modal.find('.block-content #profile_id').val(profile_id);
 });
 </script>
+
 @endsection

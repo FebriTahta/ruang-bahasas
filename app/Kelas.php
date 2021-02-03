@@ -47,4 +47,9 @@ class Kelas extends Model
     {
         return $this->hasMany(Artikel::class);
     }
+
+    public function uraian()
+    {
+        return $this->hasMany(Uraian::class);
+    }
 }

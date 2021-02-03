@@ -84,12 +84,12 @@
                                     <i class="fa fa-fw fa-edit mr-5"></i> kuis</a>
                                 </div>                    
                             </div>
-                            <div class="col-3 col-xl-3 nav nav-pills">
+                            {{-- <div class="col-3 col-xl-3 nav nav-pills">
                                 <div class="nav-item text-center" style="width: 100%">
                                     <a class="nav-link" href="#" data-category-link="book">
                                     <i class="fa fa-fw fa-book mr-5"></i> book</a>
                                 </div>                    
-                            </div>                                                                               
+                            </div>                                                                                --}}
                         </div>                                              
                     </div>                    
                     <!--end navbar konten-->
