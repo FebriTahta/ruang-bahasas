@@ -128,7 +128,7 @@ Route::group(['middleware'=>['auth','checkrole:admin,instruktur']], function(){
     //forum
     
             
-}); 
+});
 
 Route::group(['middleware'=>['auth','checkrole:siswa,pengunjung,instruktur,admin']], function(){
         
