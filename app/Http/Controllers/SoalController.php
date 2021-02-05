@@ -187,7 +187,7 @@ class SoalController extends Controller
             );
         return redirect()->back()->with($notif);
     }
-
+ 
     public function uraianU(Request $req)
     {
         $slug = $req->judul.$req->user_id;

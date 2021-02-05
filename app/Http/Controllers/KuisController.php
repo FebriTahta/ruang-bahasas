@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class KuisController extends Controller
-{
+{ 
     public function mykuisinstruktur($slug)
     {
         $user   = Auth::id();

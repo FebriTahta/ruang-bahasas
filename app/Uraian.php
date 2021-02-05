@@ -38,7 +38,7 @@ class Uraian extends Model
     public function nilai()
     {
         return $this->hasMany(Nilai::class);
-    }
+    } 
 
     
 }

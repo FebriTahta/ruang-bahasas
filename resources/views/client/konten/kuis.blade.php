@@ -131,7 +131,7 @@
                     </thead>
                     <tbody>
                         @foreach ($uraian as $key=>$item)
-                        <tr>
+                        <tr> 
                             <td class="d-none d-sm-table-cell" style="width: 5%">{{ $key+1 }}</td>
                             <td><a href="/uraian-detail/{{ $item->slug }}/{{ $item->mapel->id }}/{{ $item->kelas->id }}">{{ $item->judul }}</a></td>
                             <td class="d-none d-sm-table-cell">{{ $item->mapel->mapel_name }} {{ $item->kelas->kelas_name }}</td>
