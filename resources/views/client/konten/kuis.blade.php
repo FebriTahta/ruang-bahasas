@@ -133,7 +133,7 @@
                         @foreach ($uraian as $key=>$item)
                         <tr> 
                             <td class="d-none d-sm-table-cell" style="width: 5%">{{ $key+1 }}</td>
-                            <td>{{ $item->judul }}</td>
+                            <td><a href="/uraian-detail/{{ $item->slug }}/{{ $item->mapel->id }}/{{ $item->kelas->id }}">{{ $item->judul }}</a></td>
                             <td class="d-none d-sm-table-cell">{{ $item->mapel->mapel_name }} {{ $item->kelas->kelas_name }}</td>
                             <td >
                                 @if ($item->status==1)
